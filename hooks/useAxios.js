@@ -1,0 +1,67 @@
+import defaultAxios from "axios";
+import { useEffect,useState } from "react";
+
+const useAxios = (opts,axiosInstance = defaultAxios) => {
+  const [state, setState] = useState({
+    loading : true,
+    error : null,
+    data : null
+  })
+  const [trigger, setTrigger] = useState(0);
+  if (!opts.url){
+    return;
+  }
+  const refetch = () => {
+    setState({
+      ...state,
+      loading : true
+    });
+    setTrigger(Date.now());
+  }
+  useEffect(()=> {
+    axiosInstance(opts)
+    .then(data => {
+      setState({
+        ...state,
+        loading : false,
+        data
+      });
+    })
+    .catch(error => {
+      setState({
+        ...state,
+        loading : false,
+        error
+      });
+  },[trigger]);
+  return {...state, refetch};
+}
+
+export default useAxios;
+
+/*
+App.js 파일 ------------------------------------------------
+
+import React from "react";
+import ReactDOM from "react-dom";
+import useAxios from "./useAxios";
+import "./styles.css";
+
+
+
+
+
+export default function App() {
+  const { loading, data, error, refetch } = useAxios({url : "https://yts.mx/api/v2/list_movies.json"});
+  console.log(`Loading : ${loading}\nError : ${error}\nData : ${JSON.stringify(data)}`);
+  return (
+    <div className="App">
+      <h1>Hello CodeSandbox</h1>
+      <h2>{data && data.status}</h2>
+      <h2>{loading && "Loading"}</h2>
+      <button onClick={refetch}>Refetch</button>
+    </div>
+  );
+}
+
+*/
